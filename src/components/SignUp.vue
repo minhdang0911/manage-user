@@ -1,3 +1,4 @@
+
 <template>
   <div class="form-container">
     <div class="register">
@@ -10,6 +11,7 @@
   </div>
 </template>
 <script>
+import axios from 'axios'
 export default {
   data() {
     return {
@@ -21,11 +23,14 @@ export default {
     };
   },
   methods: {
-    SignUp() {
-      console.log("Sign Up clicked", this.form);
-      this.form.name = '';
-      this.form.email = '';
-      this.form.password = '';
+    async SignUp() {
+       let userItem = {
+         name:this.form.name,
+         email:this.form.email,
+         password:this.form.password
+       }
+
+       let result = await axios.post('http://localhost:3000/user',userItem)
     }
   }
 }
