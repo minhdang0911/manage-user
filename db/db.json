@@ -33,14 +33,24 @@
   ],
   "post": [
     {
-      "id": "c5ba",
-      "title": "learn PHP",
-      "content": "PHP is languague progaming"
+      "id": "7081",
+      "title": "test123",
+      "content": "test1234556",
+      "userId": "6d44"
     },
     {
-      "id": "cd42",
-      "title": "Learn JS",
-      "content": "test12345678"
+      "id": "1c3d",
+      "title": "learn php",
+      "content": "php 1234567",
+      "userId": "5653",
+      "updatedAt": "2025-05-27T08:39:16.708Z"
+    },
+    {
+      "id": "6ad0",
+      "title": "test",
+      "content": "1234",
+      "userId": "5653",
+      "createdAt": "2025-05-27T08:39:05.588Z"
     }
   ]
 }

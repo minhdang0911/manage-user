@@ -136,6 +136,7 @@ export default {
                 const items = {
                     title: this.form.title.trim(),
                     content: this.form.content.trim(),
+                    userId: JSON.parse(localStorage.getItem('userLogin')).id,
                 };
 
                 const result = await axios.post('http://localhost:3000/post', items);
