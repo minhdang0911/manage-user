@@ -47,7 +47,7 @@
                 <!-- Navigation Links -->
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <router-link to="/create-post" class="nav-link" @click="closeMobileMenu">
+                        <router-link to="/add-post" class="nav-link" @click="closeMobileMenu">
                             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path
                                     d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"

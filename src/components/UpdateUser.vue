@@ -49,9 +49,12 @@
                         id="name"
                         type="text"
                         v-model="form.name"
+                        @blur="validateField('name')"
+                        @input="clearFieldError('name')"
                         placeholder="Nhập họ và tên"
                         class="form-input"
                         :class="{ 'form-input--error': errors.name }"
+                        maxlength="50"
                         required
                     />
                     <span v-if="errors.name" class="error-message">{{ errors.name }}</span>
@@ -70,9 +73,12 @@
                         id="email"
                         type="email"
                         v-model="form.email"
+                        @blur="validateField('email')"
+                        @input="clearFieldError('email')"
                         placeholder="Nhập địa chỉ email"
                         class="form-input"
                         :class="{ 'form-input--error': errors.email }"
+                        maxlength="100"
                         required
                     />
                     <span v-if="errors.email" class="error-message">{{ errors.email }}</span>
@@ -92,9 +98,12 @@
                             id="password"
                             :type="showPassword ? 'text' : 'password'"
                             v-model="form.password"
+                            @blur="validateField('password')"
+                            @input="clearFieldError('password')"
                             placeholder="Nhập mật khẩu"
                             class="form-input password-input"
                             :class="{ 'form-input--error': errors.password }"
+                            maxlength="128"
                             required
                         />
                         <button type="button" class="password-toggle" @click="showPassword = !showPassword">
@@ -111,6 +120,22 @@
                         </button>
                     </div>
                     <span v-if="errors.password" class="error-message">{{ errors.password }}</span>
+                    <div v-if="form.password && !errors.password" class="password-strength">
+                        <div class="password-strength__label">Độ mạnh mật khẩu:</div>
+                        <div class="password-strength__bar">
+                            <div
+                                class="password-strength__fill"
+                                :class="`password-strength__fill--${getPasswordStrength()}`"
+                                :style="{ width: getPasswordStrengthWidth() }"
+                            ></div>
+                        </div>
+                        <div
+                            class="password-strength__text"
+                            :class="`password-strength__text--${getPasswordStrength()}`"
+                        >
+                            {{ getPasswordStrengthText() }}
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-actions">
@@ -179,28 +204,100 @@ export default {
         validateForm() {
             this.errors = {};
 
+            // Validate name
             if (!this.form.name.trim()) {
                 this.errors.name = 'Vui lòng nhập họ và tên';
+            } else if (this.form.name.trim().length < 2) {
+                this.errors.name = 'Họ và tên phải có ít nhất 2 ký tự';
+            } else if (this.form.name.trim().length > 50) {
+                this.errors.name = 'Họ và tên không được quá 50 ký tự';
+            } else if (!/^[a-zA-ZÀ-ỹ\s]+$/.test(this.form.name.trim())) {
+                this.errors.name = 'Họ và tên chỉ được chứa chữ cái và khoảng trắng';
             }
 
+            // Validate email
             if (!this.form.email.trim()) {
                 this.errors.email = 'Vui lòng nhập email';
-            } else if (!this.isValidEmail(this.form.email)) {
-                this.errors.email = 'Email không hợp lệ';
+            } else if (!this.isValidEmail(this.form.email.trim())) {
+                this.errors.email = 'Email không hợp lệ (ví dụ: user@example.com)';
+            } else if (this.form.email.trim().length > 100) {
+                this.errors.email = 'Email không được quá 100 ký tự';
             }
 
+            // Validate password
             if (!this.form.password.trim()) {
                 this.errors.password = 'Vui lòng nhập mật khẩu';
-            } else if (this.form.password.length < 6) {
-                this.errors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
+            } else if (this.form.password.length < 8) {
+                this.errors.password = 'Mật khẩu phải có ít nhất 8 ký tự';
+            } else if (this.form.password.length > 128) {
+                this.errors.password = 'Mật khẩu không được quá 128 ký tự';
+            } else if (!this.isStrongPassword(this.form.password)) {
+                this.errors.password = 'Mật khẩu phải chứa ít nhất: 1 chữ thường, 1 chữ hoa, 1 số và 1 ký tự đặc biệt';
             }
 
             return Object.keys(this.errors).length === 0;
         },
 
         isValidEmail(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const emailRegex =
+                /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
             return emailRegex.test(email);
+        },
+
+        isStrongPassword(password) {
+            // Ít nhất 8 ký tự, có chữ thường, chữ hoa, số và ký tự đặc biệt
+            const minLength = password.length >= 8;
+            const hasLower = /[a-z]/.test(password);
+            const hasUpper = /[A-Z]/.test(password);
+            const hasNumber = /\d/.test(password);
+            const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+            return minLength && hasLower && hasUpper && hasNumber && hasSpecial;
+        },
+
+        // Validate realtime khi user typing
+        validateField(fieldName) {
+            const tempErrors = { ...this.errors };
+            delete tempErrors[fieldName];
+
+            switch (fieldName) {
+                case 'name':
+                    if (!this.form.name.trim()) {
+                        tempErrors.name = 'Vui lòng nhập họ và tên';
+                    } else if (this.form.name.trim().length < 2) {
+                        tempErrors.name = 'Họ và tên phải có ít nhất 2 ký tự';
+                    } else if (this.form.name.trim().length > 50) {
+                        tempErrors.name = 'Họ và tên không được quá 50 ký tự';
+                    } else if (!/^[a-zA-ZÀ-ỹ\s]+$/.test(this.form.name.trim())) {
+                        tempErrors.name = 'Họ và tên chỉ được chứa chữ cái và khoảng trắng';
+                    }
+                    break;
+
+                case 'email':
+                    if (!this.form.email.trim()) {
+                        tempErrors.email = 'Vui lòng nhập email';
+                    } else if (!this.isValidEmail(this.form.email.trim())) {
+                        tempErrors.email = 'Email không hợp lệ (ví dụ: user@example.com)';
+                    } else if (this.form.email.trim().length > 100) {
+                        tempErrors.email = 'Email không được quá 100 ký tự';
+                    }
+                    break;
+
+                case 'password':
+                    if (!this.form.password.trim()) {
+                        tempErrors.password = 'Vui lòng nhập mật khẩu';
+                    } else if (this.form.password.length < 8) {
+                        tempErrors.password = 'Mật khẩu phải có ít nhất 8 ký tự';
+                    } else if (this.form.password.length > 128) {
+                        tempErrors.password = 'Mật khẩu không được quá 128 ký tự';
+                    } else if (!this.isStrongPassword(this.form.password)) {
+                        tempErrors.password =
+                            'Mật khẩu phải chứa ít nhất: 1 chữ thường, 1 chữ hoa, 1 số và 1 ký tự đặc biệt';
+                    }
+                    break;
+            }
+
+            this.errors = tempErrors;
         },
 
         async UpdateUser() {
@@ -255,6 +352,63 @@ export default {
 
         closeNotification() {
             this.notification.show = false;
+        },
+
+        clearFieldError(fieldName) {
+            if (this.errors[fieldName]) {
+                const tempErrors = { ...this.errors };
+                delete tempErrors[fieldName];
+                this.errors = tempErrors;
+            }
+        },
+
+        getPasswordStrength() {
+            const password = this.form.password;
+            if (!password) return 'weak';
+
+            let score = 0;
+
+            // Length check
+            if (password.length >= 8) score++;
+            if (password.length >= 12) score++;
+
+            // Character variety
+            if (/[a-z]/.test(password)) score++;
+            if (/[A-Z]/.test(password)) score++;
+            if (/\d/.test(password)) score++;
+            if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score++;
+
+            if (score <= 2) return 'weak';
+            if (score <= 4) return 'medium';
+            return 'strong';
+        },
+
+        getPasswordStrengthWidth() {
+            const strength = this.getPasswordStrength();
+            switch (strength) {
+                case 'weak':
+                    return '25%';
+                case 'medium':
+                    return '60%';
+                case 'strong':
+                    return '100%';
+                default:
+                    return '0%';
+            }
+        },
+
+        getPasswordStrengthText() {
+            const strength = this.getPasswordStrength();
+            switch (strength) {
+                case 'weak':
+                    return 'Yếu';
+                case 'medium':
+                    return 'Trung bình';
+                case 'strong':
+                    return 'Mạnh';
+                default:
+                    return '';
+            }
         },
     },
 };

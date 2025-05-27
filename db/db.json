@@ -30,5 +30,17 @@
       "email": "test1234@gmail.com",
       "password": "123456"
     }
+  ],
+  "post": [
+    {
+      "id": "c5ba",
+      "title": "learn PHP",
+      "content": "PHP is languague progaming"
+    },
+    {
+      "id": "cd42",
+      "title": "Learn JS",
+      "content": "test12345678"
+    }
   ]
 }
