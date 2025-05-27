@@ -63,7 +63,7 @@
                         </router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link to="/profile" class="nav-link" @click="closeMobileMenu">
+                        <router-link :to="`/update-user/${userId}`" class="nav-link" @click="closeMobileMenu">
                             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path
                                     d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
@@ -72,7 +72,7 @@
                                 />
                                 <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" />
                             </svg>
-                            <span>Thông tin tài khoản</span>
+                            <span>Cập nhật thông tin tài khoản</span>
                         </router-link>
                     </li>
                 </ul>
@@ -168,6 +168,7 @@ export default {
         return {
             username: '',
             userEmail: '',
+            userId: '',
             isMobileMenuOpen: false,
             isUserDropdownOpen: false,
             showLogoutModal: false,
@@ -205,6 +206,7 @@ export default {
                     const userData = JSON.parse(userLogin);
                     this.username = userData.name || userData.username || 'Người dùng';
                     this.userEmail = userData.email || '';
+                    this.userId = userData.id || '';
                 } else {
                     // Redirect to login if no user data
                     this.$router.push('/login');
